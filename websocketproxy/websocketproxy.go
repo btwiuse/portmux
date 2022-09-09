@@ -19,6 +19,9 @@ var (
 	DefaultUpgrader = &websocket.Upgrader{
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
+		CheckOrigin: func(*http.Request) bool {
+			return true
+		},
 	}
 
 	// DefaultDialer is a dialer with all fields set to the default zero values.
