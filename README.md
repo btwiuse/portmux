@@ -6,13 +6,13 @@ Port multiplexer: serve HTTP / WS JSON-RPC endpoints with UI on a single port
 
 Host your Substrate node-template with frontend on http://127.0.0.1:8000
 
-- / => https://subshell.xyz
+- / => https://redirect.subshell.xyz
 - /rpc/ws => 127.0.0.1:9944
 - /rpc/http => 127.0.0.1:9933
 
 ```
-$ env PORT=8000 PORTMUX_UI=https://subshell.xyz PORTMUX_HTTP=127.0.0.1:9933 PORTMUX_WS=127.0.0.1:8080 go run . node-template --dev
-2022/09/09 06:33:20 main.go:74: UI(/): https://subshell.xyz
+$ env PORT=8000 PORTMUX_UI=https://redirect.subshell.xyz PORTMUX_HTTP=127.0.0.1:9933 PORTMUX_WS=127.0.0.1:8080 go run . node-template --dev
+2022/09/09 06:33:20 main.go:74: UI(/): https://redirect.subshell.xyz
 2022/09/09 06:33:20 main.go:77: WS(/rpc/ws): 127.0.0.1:9944
 2022/09/09 06:33:20 main.go:80: HTTP(/rpc/http): 127.0.0.1:9933
 2022/09/09 06:33:20 main.go:82: Args: [node-template --dev]
