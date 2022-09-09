@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/btwiuse/portmux/websocketproxy"
 	"k0s.io/pkg/reverseproxy"
@@ -120,10 +121,10 @@ func (p *PortMux) handleUI(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *PortMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/rpc/http":
+	switch {
+	case strings.HasPrefix(r.URL.Path, "/rpc/http"):
 		p.handleHTTP(w, r)
-	case "/rpc/ws":
+	case strings.HasPrefix(r.URL.Path, "/rpc/ws"):
 		p.handleWS(w, r)
 	default:
 		p.handleUI(w, r)
