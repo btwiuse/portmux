@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/koding/websocketproxy"
+	"github.com/btwiuse/portmux/websocketproxy"
 	"k0s.io/pkg/reverseproxy"
 )
 
