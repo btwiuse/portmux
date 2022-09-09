@@ -9,9 +9,18 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/btwiuse/portmux/websocketproxy"
+	"github.com/gorilla/websocket"
+	"github.com/koding/websocketproxy"
 	"k0s.io/pkg/reverseproxy"
 )
+
+var DefaultUpgrader = &websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(*http.Request) bool {
+		return true
+	},
+}
 
 type PortMux struct {
 	UI   *string
@@ -109,7 +118,9 @@ func (p *PortMux) handleWS(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 		return
 	}
-	websocketproxy.NewProxy(u).ServeHTTP(w, r)
+	wsproxy := websocketproxy.NewProxy(u)
+	wsproxy.Upgrader = DefaultUpgrader
+	wsproxy.ServeHTTP(w, r)
 }
 
 func (p *PortMux) handleUI(w http.ResponseWriter, r *http.Request) {
