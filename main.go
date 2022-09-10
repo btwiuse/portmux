@@ -23,10 +23,13 @@ var DefaultUpgrader = &websocket.Upgrader{
 }
 
 type PortMux struct {
-	UI   *string
-	WS   *string
-	HTTP *string
-	Argv []string
+	UI          *string
+	WS          *string
+	HTTP        *string
+	Argv        []string
+	HandlerUI   http.Handler
+	HandlerWS   http.Handler
+	HandlerHTTP http.Handler
 }
 
 type Options struct {
@@ -36,12 +39,15 @@ type Options struct {
 	http *string
 }
 
-func defaultPortMux(opts *Options) *PortMux {
+func NewPortMux(opts *Options) *PortMux {
 	mux := &PortMux{
-		Argv: opts.argv,
-		UI:   opts.ui,
-		WS:   opts.ws,
-		HTTP: opts.http,
+		Argv:        opts.argv,
+		UI:          opts.ui,
+		WS:          opts.ws,
+		HTTP:        opts.http,
+		HandlerUI:   http.NotFoundHandler(),
+		HandlerWS:   http.NotFoundHandler(),
+		HandlerHTTP: http.NotFoundHandler(),
 	}
 	mux.SpawnCmd()
 	return mux
@@ -82,12 +88,21 @@ func portmuxHTTP() *string {
 func (p *PortMux) SpawnCmd() {
 	if p.UI != nil {
 		log.Println("UI(/):", *p.UI)
+		p.HandlerUI = reverseproxy.Handler(*p.UI)
 	}
 	if p.WS != nil {
 		log.Println("WS(/rpc/ws):", *p.WS)
+		u, err := url.Parse("ws://" + *p.WS)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		wsproxy := websocketproxy.NewProxy(u)
+		wsproxy.Upgrader = DefaultUpgrader
+		p.HandlerWS = wsproxy
 	}
 	if p.HTTP != nil {
 		log.Println("HTTP(/rpc/http):", *p.HTTP)
+		p.HandlerHTTP = reverseproxy.Handler("http://" + *p.HTTP)
 	}
 	log.Println("Args:", p.Argv)
 	if len(p.Argv) == 0 {
@@ -100,51 +115,20 @@ func (p *PortMux) SpawnCmd() {
 	cmd.Start()
 }
 
-func (p *PortMux) handleHTTP(w http.ResponseWriter, r *http.Request) {
-	if p.HTTP == nil {
-		http.NotFoundHandler().ServeHTTP(w, r)
-		return
-	}
-	reverseproxy.Handler("http://"+*p.HTTP).ServeHTTP(w, r)
-}
-
-func (p *PortMux) handleWS(w http.ResponseWriter, r *http.Request) {
-	if p.WS == nil {
-		http.NotFoundHandler().ServeHTTP(w, r)
-		return
-	}
-	u, err := url.Parse("ws://" + *p.WS)
-	if err != nil {
-		log.Fatalln(err)
-		return
-	}
-	wsproxy := websocketproxy.NewProxy(u)
-	wsproxy.Upgrader = DefaultUpgrader
-	wsproxy.ServeHTTP(w, r)
-}
-
-func (p *PortMux) handleUI(w http.ResponseWriter, r *http.Request) {
-	if p.UI == nil {
-		http.NotFoundHandler().ServeHTTP(w, r)
-		return
-	}
-	reverseproxy.Handler(*p.UI).ServeHTTP(w, r)
-}
-
 func (p *PortMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
-	case strings.HasPrefix(r.URL.Path, "/rpc/http"):
-		p.handleHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/rpc/ws"):
-		p.handleWS(w, r)
+		p.HandlerWS.ServeHTTP(w, r)
+	case strings.HasPrefix(r.URL.Path, "/rpc/http"):
+		p.HandlerHTTP.ServeHTTP(w, r)
 	default:
-		p.handleUI(w, r)
+		p.HandlerUI.ServeHTTP(w, r)
 	}
 }
 
 func main() {
 	port := envPORT(":8000")
-	mux := defaultPortMux(&Options{
+	mux := NewPortMux(&Options{
 		argv: portmuxArgv(),
 		ui:   portmuxUI(),
 		ws:   portmuxWS(),
