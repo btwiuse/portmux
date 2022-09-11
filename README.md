@@ -27,11 +27,11 @@ set upstream HTTP endpoint for reverse proxy (optional)
 $ export PORTMUX_HTTP=http://127.0.0.1:9933
 
 set upstream WS endpoint for reverse proxy (optional)
-$ export PORTMUX_WS=http://127.0.0.1:8080
+$ export PORTMUX_WS=ws://127.0.0.1:8080
 
 $ portmux ./target/release/node-template --dev
 2022/09/09 06:33:20 main.go:74: UI(/): https://redirect.subshell.xyz
-2022/09/09 06:33:20 main.go:77: WS(/rpc/ws): http://127.0.0.1:9944
+2022/09/09 06:33:20 main.go:77: WS(/rpc/ws): ws://127.0.0.1:9944
 2022/09/09 06:33:20 main.go:80: HTTP(/rpc/http): http://127.0.0.1:9933
 2022/09/09 06:33:20 main.go:82: Args: [node-template --dev]
 2022/09/09 06:33:20 main.go:141: listening on http://127.0.0.1:8000
