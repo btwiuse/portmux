@@ -1,6 +1,12 @@
 # portmux
 
-Port multiplexer: serve HTTP / WS JSON-RPC endpoints with UI on a single port
+Port multiplexer: a reverse proxy that exposes HTTP / WS endpoints with UI on a single PORT
+
+## Install
+
+```
+$ go install github.com/btwiuse/portmux@latest
+```
 
 ## Examples
 
@@ -11,10 +17,22 @@ Host your Substrate node-template with frontend on http://127.0.0.1:8000
 - /rpc/http => 127.0.0.1:9933
 
 ```
-$ env PORT=8000 PORTMUX_UI=https://redirect.subshell.xyz PORTMUX_HTTP=127.0.0.1:9933 PORTMUX_WS=127.0.0.1:8080 go run . node-template --dev
+set listening port (optional, default: 8000)
+$ export PORT=8000
+
+set upstream UI url for reverse proxy (optional)
+$ export PORTMUX_UI=https://redirect.subshell.xyz
+
+set upstream HTTP endpoint for reverse proxy (optional)
+$ export PORTMUX_HTTP=http://127.0.0.1:9933
+
+set upstream WS endpoint for reverse proxy (optional)
+$ export PORTMUX_WS=http://127.0.0.1:8080
+
+$ portmux ./target/release/node-template --dev
 2022/09/09 06:33:20 main.go:74: UI(/): https://redirect.subshell.xyz
-2022/09/09 06:33:20 main.go:77: WS(/rpc/ws): 127.0.0.1:9944
-2022/09/09 06:33:20 main.go:80: HTTP(/rpc/http): 127.0.0.1:9933
+2022/09/09 06:33:20 main.go:77: WS(/rpc/ws): http://127.0.0.1:9944
+2022/09/09 06:33:20 main.go:80: HTTP(/rpc/http): http://127.0.0.1:9933
 2022/09/09 06:33:20 main.go:82: Args: [node-template --dev]
 2022/09/09 06:33:20 main.go:141: listening on http://127.0.0.1:8000
 2022-09-09 06:33:20 Substrate Node

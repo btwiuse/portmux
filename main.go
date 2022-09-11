@@ -91,8 +91,11 @@ func (p *PortMux) SpawnCmd() {
 		p.HandlerUI = reverseproxy.Handler(*p.UI)
 	}
 	if p.WS != nil {
+		if !strings.HasPrefix(*p.WS, "ws://") && !strings.HasPrefix(*p.WS, "wss://") {
+			*p.WS = "ws://" + *p.WS
+		}
 		log.Println("WS(/rpc/ws):", *p.WS)
-		u, err := url.Parse("ws://" + *p.WS)
+		u, err := url.Parse(*p.WS)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -101,8 +104,11 @@ func (p *PortMux) SpawnCmd() {
 		p.HandlerWS = wsproxy
 	}
 	if p.HTTP != nil {
+		if !strings.HasPrefix(*p.HTTP, "http://") && !strings.HasPrefix(*p.HTTP, "https://") {
+			*p.HTTP = "http://" + *p.HTTP
+		}
 		log.Println("HTTP(/rpc/http):", *p.HTTP)
-		p.HandlerHTTP = reverseproxy.Handler("http://" + *p.HTTP)
+		p.HandlerHTTP = reverseproxy.Handler(*p.HTTP)
 	}
 	log.Println("Args:", p.Argv)
 	if len(p.Argv) == 0 {
