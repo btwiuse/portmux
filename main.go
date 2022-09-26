@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/btwiuse/ufo"
 	"github.com/gorilla/websocket"
 	"github.com/koding/websocketproxy"
 	"k0s.io/pkg/reverseproxy"
@@ -85,6 +86,13 @@ func portmuxHTTP() *string {
 	return nil
 }
 
+func portmuxUFO() *string {
+	if u, ok := os.LookupEnv("PORTMUX_UFO"); ok {
+		return &u
+	}
+	return nil
+}
+
 func (p *PortMux) SpawnCmd() {
 	if p.UI != nil {
 		log.Println("UI(/):", *p.UI)
@@ -140,6 +148,10 @@ func main() {
 		ws:   portmuxWS(),
 		http: portmuxHTTP(),
 	})
+	if u := portmuxUFO(); u != nil {
+		log.Fatalln(ufo.Serve(*u, mux))
+		return
+	}
 	log.Println(fmt.Sprintf("listening on http://127.0.0.1%s", port))
 	log.Fatalln(http.ListenAndServe(port, mux))
 }
