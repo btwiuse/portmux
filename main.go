@@ -9,10 +9,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/btwiuse/ufo"
 	"github.com/gorilla/websocket"
 	"github.com/koding/websocketproxy"
-	"k0s.io/pkg/reverseproxy"
+	"github.com/webteleport/utils"
+	"github.com/webteleport/wtf"
 )
 
 var DefaultUpgrader = &websocket.Upgrader{
@@ -96,7 +96,7 @@ func portmuxUFO() *string {
 func (p *PortMux) SpawnCmd() {
 	if p.UI != nil {
 		log.Println("UI(/):", *p.UI)
-		p.HandlerUI = reverseproxy.Handler(*p.UI)
+		p.HandlerUI = utils.ReverseProxy(*p.UI)
 	}
 	if p.WS != nil {
 		if !strings.HasPrefix(*p.WS, "ws://") && !strings.HasPrefix(*p.WS, "wss://") {
@@ -116,7 +116,7 @@ func (p *PortMux) SpawnCmd() {
 			*p.HTTP = "http://" + *p.HTTP
 		}
 		log.Println("HTTP(/rpc/http):", *p.HTTP)
-		p.HandlerHTTP = reverseproxy.Handler(*p.HTTP)
+		p.HandlerHTTP = utils.ReverseProxy(*p.HTTP)
 	}
 	log.Println("Args:", p.Argv)
 	if len(p.Argv) == 0 {
@@ -149,7 +149,7 @@ func main() {
 		http: portmuxHTTP(),
 	})
 	if u := portmuxUFO(); u != nil {
-		log.Fatalln(ufo.Serve(*u, mux))
+		log.Fatalln(wtf.Serve(*u, mux))
 		return
 	}
 	log.Println(fmt.Sprintf("listening on http://127.0.0.1%s", port))
