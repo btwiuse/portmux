@@ -1,4 +1,4 @@
-package main
+package portmux
 
 import (
 	"fmt"
@@ -140,18 +140,17 @@ func (p *PortMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
+func Run(args []string) error {
 	port := envPORT(":8000")
 	mux := NewPortMux(&Options{
-		argv: portmuxArgv(),
+		argv: args,
 		ui:   portmuxUI(),
 		ws:   portmuxWS(),
 		http: portmuxHTTP(),
 	})
 	if u := portmuxUFO(); u != nil {
-		log.Fatalln(wtf.Serve(*u, mux))
-		return
+		return wtf.Serve(*u, mux)
 	}
-	log.Println(fmt.Sprintf("listening on http://127.0.0.1%s", port))
-	log.Fatalln(http.ListenAndServe(port, mux))
+	log.Println(fmt.Sprintf("No PORTMUX_UFO envvar found, listening on http://127.0.0.1%s", port))
+	return http.ListenAndServe(port, mux)
 }

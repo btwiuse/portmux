@@ -1,11 +1,15 @@
 # portmux
 
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/btwiuse/portmux?tab=doc)
+[![Go 1.18+](https://img.shields.io/github/go-mod/go-version/btwiuse/portmux)](https://golang.org/dl/)
+[![License](https://img.shields.io/github/license/btwiuse/portmux?color=%23000&style=flat-round)](https://github.com/btwiuse/portmux/blob/main/LICENSE)
+
 Port multiplexer: a reverse proxy that exposes HTTP / WS endpoints with UI on a single PORT
 
 ## Install
 
 ```
-$ go install github.com/btwiuse/portmux@latest
+$ go install github.com/btwiuse/portmux/cmd/portmux@latest
 ```
 
 ## Examples
